@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+source "$(dirname "$0")/../lib/utils.sh"
+
+ASDF_INSTALL_TYPE=${ASDF_INSTALL_TYPE:-version  }
+[ -n "$ASDF_INSTALL_TYPE" ] || (>&2 echo 'Missing ASDF_INSTALL_TYPE' && exit 1)
+[ -n "$ASDF_INSTALL_VERSION" ] || (>&2 echo 'Missing ASDF_INSTALL_VERSION' && exit 1)
+[ -n "$ASDF_DOWNLOAD_PATH" ] || (>&2 echo 'Missing ASDF_DOWNLOAD_PATH' && exit 1)
+
+download_temporalite() {
+  local install_type=$1
+  local version=$2
+  local download_path=$3/temporalite
+  local download_url="$(get_download_url $version)"
+
+  if [ ! -d "${download_path}" ]; then
+    mkdir -p "${download_path}"
+  fi
+
+  local filename="temporalite-$version.tar.gz"
+
+  echo "Downloading temporalite from $download_url"
+
+  if curl -L -sf "$download_url" -o "$download_path/$filename"; then
+    echo "temporalite archive downloaded into $download_path/$filename."
+  else
+    echo "Failed to download temporalite from $download_url. Does the version exist and is available in the requested $(get_cpu) architecture?"
+    exit 1
+  fi
+
+  echo "temporalite downloaded."
+}
+
+download_temporalite "$ASDF_INSTALL_TYPE" "$ASDF_INSTALL_VERSION" "$ASDF_DOWNLOAD_PATH"

@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+source "$(dirname "$0")/../lib/utils.sh"
+
+ASDF_INSTALL_TYPE=${ASDF_INSTALL_TYPE:-version  }
+[ -n "$ASDF_INSTALL_VERSION" ] || (>&2 echo 'Missing ASDF_INSTALL_VERSION' && exit 1)
+[ -n "$ASDF_INSTALL_PATH" ] || (>&2 echo 'Missing ASDF_INSTALL_PATH' && exit 1)
+
+install_temporalite() {
+  local download_path=$1/temporalite
+  local install_path=$2
+  local version=$3
+  local bin_install_path="$install_path/bin"
+  local filename="temporalite-$version.tar.gz"
+
+  if [ ! -d "${bin_install_path}" ]; then
+    mkdir -p "${bin_install_path}"
+  fi
+
+  echo "Installing temporalite..."
+
+  tar -xzf "$download_path/$filename" -C $bin_install_path temporalite
+  chmod +x $bin_install_path/temporalite
+
+  echo "temporalite installed."
+}
+
+install_temporalite "$ASDF_DOWNLOAD_PATH" "$ASDF_INSTALL_PATH" "$ASDF_INSTALL_VERSION"
